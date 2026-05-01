@@ -43,14 +43,7 @@ export async function saveScore(
 ): Promise<void> {
   if (!db) return;
 
-  // スコアレコードを追加
-  await addDoc(collection(db, 'scores'), {
-    userId,
-    displayName,
-    score,
-    timeMs,
-    playedAt: serverTimestamp(),
-  });
+  // scoresコレクションへの全履歴保存はランキング仕様変更に伴い廃止（コスト削減のため）
 
   // ユーザー統計を更新
   const userRef = doc(db, 'users', userId);
