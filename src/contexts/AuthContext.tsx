@@ -7,6 +7,8 @@ import {
   GoogleAuthProvider,
   signOut as firebaseSignOut,
   updateProfile,
+  sendEmailVerification,
+  sendPasswordResetEmail,
   type User,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
@@ -20,6 +22,7 @@ interface AuthContextType {
   signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -69,13 +72,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     if (!auth) throw new Error('Firebase not configured');
-    await signInWithEmailAndPassword(auth, email, password);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    if (!cred.user.emailVerified) {
+      await firebaseSignOut(auth);
+      throw new Error('メールアドレスが確認されていません。登録時に送信された確認メールのリンクをクリックしてください。');
+    }
   };
 
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
     if (!auth) throw new Error('Firebase not configured');
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName });
+    await sendEmailVerification(cred.user);
+    await firebaseSignOut(auth); // 一旦ログアウトして確認待ちにする
   };
 
   const signInWithGoogle = async () => {
@@ -89,6 +98,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await firebaseSignOut(auth);
   };
 
+  const resetPassword = async (email: string) => {
+    if (!auth) throw new Error('Firebase not configured');
+    await sendPasswordResetEmail(auth, email);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -99,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUpWithEmail,
         signInWithGoogle,
         signOut,
+        resetPassword,
       }}
     >
       {children}

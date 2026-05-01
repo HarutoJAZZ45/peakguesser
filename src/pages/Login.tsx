@@ -6,12 +6,13 @@ import './Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signInWithEmail, signUpWithEmail, signInWithGoogle, user } = useAuth();
+  const { signInWithEmail, signUpWithEmail, signInWithGoogle, resetPassword, user } = useAuth();
   const [tab, setTab] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Already logged in
@@ -23,10 +24,12 @@ export default function Login() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setMessage('');
     setLoading(true);
     try {
       if (tab === 'login') {
         await signInWithEmail(email, password);
+        navigate('/home');
       } else {
         if (!displayName.trim()) {
           setError('名前を入力してください');
@@ -34,10 +37,31 @@ export default function Login() {
           return;
         }
         await signUpWithEmail(email, password, displayName);
+        setTab('login');
+        setPassword('');
+        setMessage('確認メールを送信しました。メール内のリンクをクリックして認証を完了し、ログインしてください。');
       }
-      navigate('/home');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '認証に失敗しました';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError('メールアドレスを入力してください');
+      return;
+    }
+    setError('');
+    setMessage('');
+    setLoading(true);
+    try {
+      await resetPassword(email);
+      setMessage('パスワード再設定メールを送信しました。メールの案内に従って再設定してください。');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'エラーが発生しました';
       setError(msg);
     } finally {
       setLoading(false);
@@ -80,7 +104,7 @@ export default function Login() {
               </button>
               <button
                 className={`login-tab ${tab === 'signup' ? 'active' : ''}`}
-                onClick={() => { setTab('signup'); setError(''); }}
+                onClick={() => { setTab('signup'); setError(''); setMessage(''); }}
                 id="tab-signup"
               >
                 新規登録
@@ -88,6 +112,7 @@ export default function Login() {
             </div>
 
             {error && <div className="login-error">{error}</div>}
+            {message && <div style={{ color: '#4CAF50', backgroundColor: 'rgba(76, 175, 80, 0.1)', padding: '0.8rem', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.9rem', lineHeight: '1.4' }}>{message}</div>}
 
             <form onSubmit={handleSubmit}>
               {tab === 'signup' && (
@@ -128,6 +153,15 @@ export default function Login() {
                   minLength={6}
                 />
               </div>
+
+              {tab === 'login' && (
+                <div style={{ textAlign: 'right', marginTop: '-0.5rem', marginBottom: '1rem' }}>
+                  <button type="button" onClick={handleResetPassword} style={{ background: 'none', border: 'none', color: 'var(--c-primary)', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}>
+                    パスワードを忘れた場合
+                  </button>
+                </div>
+              )}
+
               <button className="btn btn-primary btn-block" type="submit" disabled={loading} id="btn-submit">
                 {loading ? '処理中...' : tab === 'login' ? 'ログイン' : '登録'}
               </button>
