@@ -75,15 +75,15 @@ export async function saveScore(
   await updateDoc(userRef, updates);
 }
 
-/** ランキング取得（スコア降順 → タイム昇順） */
+/** ランキング取得（ユーザーごとのベストスコアでスコア降順 → タイム昇順） */
 export async function getRanking(topN = 50): Promise<ScoreRecord[]> {
   if (!db) return [];
 
   try {
-    // 複合インデックスエラーを避けるため、scoreのみでソートして取得
+    // 複合インデックスエラーを避け、かつユーザーの重複を防ぐため、usersコレクションから取得
     const q = query(
-      collection(db, 'scores'),
-      orderBy('score', 'desc'),
+      collection(db, 'users'),
+      orderBy('bestScore', 'desc'),
       limit(topN)
     );
 
@@ -92,16 +92,19 @@ export async function getRanking(topN = 50): Promise<ScoreRecord[]> {
       const data = d.data();
       return {
         id: d.id,
-        userId: data.userId,
-        displayName: data.displayName,
-        score: data.score,
-        timeMs: data.timeMs,
-        playedAt: data.playedAt?.toDate() || new Date(),
+        userId: d.id, // usersコレクションのドキュメントIDがuserId
+        displayName: data.displayName || '名無し',
+        score: data.bestScore || 0,
+        timeMs: data.bestTime || 0,
+        playedAt: data.updatedAt?.toDate() || new Date(),
       };
     });
 
+    // スコアが0のユーザー（未プレイ）を除外
+    const filtered = records.filter(r => r.score > 0);
+
     // メモリ上で、スコアが同じならタイム昇順でソートする
-    return records.sort((a, b) => {
+    return filtered.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
       return a.timeMs - b.timeMs;
     });
