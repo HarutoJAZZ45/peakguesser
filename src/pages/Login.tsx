@@ -15,11 +15,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [isVerificationSent, setIsVerificationSent] = useState(false);
 
-  // Already logged in
-  if (user) {
-    navigate('/home', { replace: true });
-    return null;
-  }
+
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -97,6 +93,16 @@ export default function Login() {
         </div>
       </div>
     );
+  }
+
+  // Already logged in (and not currently showing verification screen)
+  if (user) {
+    // ログイン済みでも未認証ならリダイレクトしない（新規登録直後のログアウト処理のタイムラグ対策）
+    if (user.emailVerified || user.providerData.some(p => p.providerId === 'google.com')) {
+      // setTimeout to avoid updating during render warning
+      setTimeout(() => navigate('/home', { replace: true }), 0);
+      return null;
+    }
   }
 
   return (
