@@ -6,7 +6,6 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
-  updateProfile,
   sendEmailVerification,
   sendPasswordResetEmail,
   type User,
