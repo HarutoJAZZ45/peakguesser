@@ -1,0 +1,85 @@
+.mountain-card {
+  background: var(--c-bg-card);
+  border: 1px solid var(--c-border);
+  overflow: hidden;
+  transition: border-color var(--tr-fast);
+}
+
+.mountain-card:hover {
+  border-color: var(--c-border-strong);
+}
+
+.mountain-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+  background: var(--c-bg-input);
+}
+
+.mountain-card-body {
+  padding: var(--sp-md);
+}
+
+.mountain-card-name {
+  font-family: var(--ff-heading);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mountain-card-meta {
+  font-size: var(--fs-sm);
+  color: var(--c-text-secondary);
+  margin-top: var(--sp-xs);
+}
+
+.mountain-card-desc {
+  font-size: var(--fs-sm);
+  color: var(--c-text-secondary);
+  margin-top: var(--sp-sm);
+  line-height: 1.5;
+}
+
+.mountain-card.correct {
+  border-color: var(--c-correct-light);
+}
+
+.mountain-card.wrong {
+  border-color: var(--c-wrong-light);
+}
+
+.mountain-card-badge {
+  display: inline-block;
+  font-family: var(--ff-heading);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  margin-top: var(--sp-sm);
+}
+
+.mountain-card-badge.correct {
+  background: var(--c-correct);
+  color: var(--c-text-primary);
+}
+
+.mountain-card-badge.wrong {
+  background: var(--c-wrong);
+  color: var(--c-text-primary);
+}
+
+/* mini variant for profile grid */
+.mountain-card.mini .mountain-card-image {
+  aspect-ratio: 1;
+}
+
+.mountain-card.mini .mountain-card-body {
+  padding: var(--sp-sm);
+}
+
+.mountain-card.mini .mountain-card-name {
+  font-size: var(--fs-sm);
+}

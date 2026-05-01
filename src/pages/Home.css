@@ -1,0 +1,116 @@
+.home-page {
+  flex: 1;
+  padding-top: calc(var(--header-height) + var(--sp-3xl));
+  padding-bottom: var(--sp-3xl);
+}
+
+.home-hero {
+  text-align: center;
+  margin-bottom: var(--sp-3xl);
+  animation: fadeIn 500ms ease forwards;
+}
+
+.home-hero-title {
+  font-size: var(--fs-3xl);
+  margin-bottom: var(--sp-sm);
+}
+
+.home-hero-title span {
+  color: var(--c-accent);
+}
+
+.home-hero-desc {
+  color: var(--c-text-secondary);
+  font-size: var(--fs-base);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.home-start-section {
+  text-align: center;
+  margin-bottom: var(--sp-3xl);
+  animation: slideUp 500ms ease forwards;
+  animation-delay: 150ms;
+  opacity: 0;
+}
+
+.home-start-btn {
+  font-size: var(--fs-xl);
+  padding: var(--sp-lg) var(--sp-3xl);
+  min-height: 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-start-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 600ms ease;
+}
+
+.home-start-btn:hover::after {
+  transform: translateX(100%);
+}
+
+.home-info {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  margin-top: var(--sp-md);
+}
+
+.home-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-md);
+  animation: slideUp 600ms ease forwards;
+  animation-delay: 300ms;
+  opacity: 0;
+}
+
+.home-stat-card {
+  background: var(--c-bg-card);
+  border: 1px solid var(--c-border);
+  padding: var(--sp-xl);
+  text-align: center;
+}
+
+.home-stat-value {
+  font-family: var(--ff-heading);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  color: var(--c-accent);
+}
+
+.home-stat-label {
+  font-size: var(--fs-sm);
+  color: var(--c-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: var(--ff-heading);
+  margin-top: var(--sp-xs);
+}
+
+.home-guest-badge {
+  display: inline-block;
+  font-family: var(--ff-heading);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--c-text-muted);
+  border: 1px solid var(--c-border);
+  padding: 4px 12px;
+  margin-bottom: var(--sp-lg);
+}
+
+@media (max-width: 640px) {
+  .home-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .home-start-btn {
+    width: 100%;
+  }
+}
