@@ -38,7 +38,7 @@ export default function Result() {
       const currentScore = state.results.filter(r => r.correct).length;
       const correctIds = state.results.filter(r => r.correct).map(r => r.mountain.id);
       
-      saveScore(user.uid, user.displayName || 'プレイヤー', currentScore, state.totalTimeMs, correctIds)
+      saveScore(user.uid, currentScore, state.totalTimeMs, correctIds)
         .then(() => setSaved(true))
         .catch(err => console.error('Failed to auto-save score:', err));
     }

@@ -1,6 +1,5 @@
 import {
   collection,
-  addDoc,
   query,
   orderBy,
   limit,
@@ -36,7 +35,6 @@ export interface UserProfile {
 /** スコアを保存 */
 export async function saveScore(
   userId: string,
-  displayName: string,
   score: number,
   timeMs: number,
   correctMountainIds: string[]
