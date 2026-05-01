@@ -10,10 +10,10 @@ export default function Login() {
   const [tab, setTab] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isVerificationSent, setIsVerificationSent] = useState(false);
 
   // Already logged in
   if (user) {
@@ -31,15 +31,9 @@ export default function Login() {
         await signInWithEmail(email, password);
         navigate('/home');
       } else {
-        if (!displayName.trim()) {
-          setError('名前を入力してください');
-          setLoading(false);
-          return;
-        }
-        await signUpWithEmail(email, password, displayName);
-        setTab('login');
+        await signUpWithEmail(email, password);
         setPassword('');
-        setMessage('確認メールを送信しました。メール内のリンクをクリックして認証を完了し、ログインしてください。');
+        setIsVerificationSent(true);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '認証に失敗しました';
@@ -79,6 +73,32 @@ export default function Login() {
     }
   };
 
+  if (isVerificationSent) {
+    return (
+      <div className="login-page">
+        <div className="login-hero" style={{ marginBottom: '2rem' }}>
+          <h1 className="login-title">Peak<span>Guesser</span></h1>
+        </div>
+        <div className="login-form-container" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+          <h2 style={{ marginBottom: '1.5rem', color: 'var(--c-primary)' }}>確認メールを送信しました</h2>
+          <p style={{ lineHeight: '1.6', marginBottom: '1.5rem', fontSize: '1rem' }}>
+            <strong>{email}</strong> 宛に認証用のメールを送信しました。<br />
+            メール内のリンクをクリックして認証を完了させてください。
+          </p>
+          <div style={{ backgroundColor: 'rgba(255, 152, 0, 0.1)', padding: '1rem', borderRadius: '8px', borderLeft: '4px solid #ff9800', textAlign: 'left', marginBottom: '2rem' }}>
+            <p style={{ fontSize: '0.9rem', color: '#e65100', margin: 0, lineHeight: '1.5' }}>
+              <strong>⚠️ ご注意</strong><br />
+              数分経っても届かない場合は、<strong>迷惑メールフォルダ</strong> や <strong>プロモーションタブ</strong> に振り分けられている可能性が高いため、必ずご確認ください。
+            </p>
+          </div>
+          <button className="btn btn-outline btn-block" onClick={() => { setIsVerificationSent(false); setTab('login'); setMessage('認証が完了したら、こちらからログインしてください。'); }}>
+            ログイン画面に戻る
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="login-page">
       <div className="login-hero">
@@ -115,19 +135,6 @@ export default function Login() {
             {message && <div style={{ color: '#4CAF50', backgroundColor: 'rgba(76, 175, 80, 0.1)', padding: '0.8rem', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.9rem', lineHeight: '1.4' }}>{message}</div>}
 
             <form onSubmit={handleSubmit}>
-              {tab === 'signup' && (
-                <div className="login-field">
-                  <label className="login-label" htmlFor="input-name">名前</label>
-                  <input
-                    className="input"
-                    id="input-name"
-                    type="text"
-                    placeholder="山好き太郎"
-                    value={displayName}
-                    onChange={e => setDisplayName(e.target.value)}
-                  />
-                </div>
-              )}
               <div className="login-field">
                 <label className="login-label" htmlFor="input-email">メールアドレス</label>
                 <input

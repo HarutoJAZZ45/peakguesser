@@ -19,7 +19,7 @@ interface AuthContextType {
   loading: boolean;
   isGuest: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -79,10 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+  const signUpWithEmail = async (email: string, password: string) => {
     if (!auth) throw new Error('Firebase not configured');
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(cred.user, { displayName });
     await sendEmailVerification(cred.user);
     await firebaseSignOut(auth); // 一旦ログアウトして確認待ちにする
   };
