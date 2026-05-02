@@ -92,27 +92,29 @@ export default function Play() {
   return (
     <div className="play-page">
       <div className="container">
-        {/* Progress dots */}
-        <div className="play-progress">
-          {questions.map((_, i) => {
-            let cls = 'play-progress-dot';
-            if (i === currentIndex) cls += ' current';
-            else if (results[i]?.correct) cls += ' correct';
-            else if (results[i] && !results[i].correct) cls += ' wrong';
-            return <div key={i} className={cls} />;
-          })}
-          <span className="play-progress-label">
-            {currentIndex + 1} / {QUESTION_COUNT}
-          </span>
-        </div>
+        <div className="play-header-sticky">
+          {/* Progress dots */}
+          <div className="play-progress">
+            {questions.map((_, i) => {
+              let cls = 'play-progress-dot';
+              if (i === currentIndex) cls += ' current';
+              else if (results[i]?.correct) cls += ' correct';
+              else if (results[i] && !results[i].correct) cls += ' wrong';
+              return <div key={i} className={cls} />;
+            })}
+            <span className="play-progress-label">
+              {currentIndex + 1} / {QUESTION_COUNT}
+            </span>
+          </div>
 
-        {/* Timer */}
-        <Timer
-          durationMs={TIME_LIMIT_MS}
-          running={!showFeedback}
-          onTimeUp={handleTimeUp}
-          resetKey={timerKey}
-        />
+          {/* Timer */}
+          <Timer
+            durationMs={TIME_LIMIT_MS}
+            running={!showFeedback}
+            onTimeUp={handleTimeUp}
+            resetKey={timerKey}
+          />
+        </div>
 
         {/* Image */}
         <div className="play-image-wrapper">

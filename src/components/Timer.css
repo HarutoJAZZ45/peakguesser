@@ -9,7 +9,6 @@
 .timer-bar {
   height: 100%;
   background: var(--c-accent);
-  transition: width 100ms linear;
 }
 
 .timer-bar.warning {
