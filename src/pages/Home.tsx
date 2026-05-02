@@ -1,20 +1,15 @@
 import { useNavigate } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
-import { useEffect, useState } from 'react';
-import { getUserProfile, type UserProfile } from '../services/gameService';
 import { mountains } from '../data/mountains';
 import './Home.css';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user, isGuest } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const { isGuest, userProfile } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      getUserProfile(user.uid).then(p => setProfile(p));
-    }
-  }, [user]);
+  const summitedCount = userProfile
+    ? Object.values(userProfile.mountainCorrectCounts || {}).filter(c => c >= 2).length
+    : 0;
 
   return (
     <div className="home-page">
@@ -41,19 +36,19 @@ export default function Home() {
           <p className="home-info">10問 / 1問15秒 / 4択</p>
         </div>
 
-        {profile && (
+        {userProfile && (
           <div className="home-stats">
             <div className="home-stat-card">
-              <div className="home-stat-value">{profile.bestScore}/10</div>
+              <div className="home-stat-value">{userProfile.bestScore}/10</div>
               <div className="home-stat-label">Best Score</div>
             </div>
             <div className="home-stat-card">
-              <div className="home-stat-value">{profile.totalGames}</div>
+              <div className="home-stat-value">{userProfile.totalGames}</div>
               <div className="home-stat-label">Games Played</div>
             </div>
             <div className="home-stat-card">
-              <div className="home-stat-value">{profile.collectedMountains.length}</div>
-              <div className="home-stat-label">Mountains Found</div>
+              <div className="home-stat-value">{summitedCount}</div>
+              <div className="home-stat-label">Summited</div>
             </div>
           </div>
         )}
@@ -61,3 +56,4 @@ export default function Home() {
     </div>
   );
 }
+
