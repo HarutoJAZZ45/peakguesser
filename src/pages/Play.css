@@ -1,6 +1,6 @@
 .play-page {
   flex: 1;
-  padding-top: calc(var(--header-height) + var(--sp-sm));
+  padding-top: calc(var(--header-height) + var(--sp-xl));
   padding-bottom: var(--sp-md);
   display: flex;
   flex-direction: column;

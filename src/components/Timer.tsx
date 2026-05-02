@@ -11,9 +11,6 @@ interface TimerProps {
 
 export default function Timer({ durationMs, running, onTimeUp, resetKey }: TimerProps) {
   const [remaining, setRemaining] = useState(durationMs);
-  const startTimeRef = useRef(0);
-  const rafRef = useRef(0);
-  const calledRef = useRef(false);
   const onTimeUpRef = useRef(onTimeUp);
 
   // onTimeUp の最新参照を常に保持（依存配列から外すため）
@@ -23,26 +20,32 @@ export default function Timer({ durationMs, running, onTimeUp, resetKey }: Timer
 
   useEffect(() => {
     setRemaining(durationMs);
-    calledRef.current = false;
-    startTimeRef.current = Date.now();
+    let animationFrameId: number;
+    let startTime = Date.now();
+    let isCalled = false;
 
     if (!running) return;
 
     const tick = () => {
-      const elapsed = Date.now() - startTimeRef.current;
+      const elapsed = Date.now() - startTime;
       const left = Math.max(0, durationMs - elapsed);
       setRemaining(left);
 
-      if (left <= 0 && !calledRef.current) {
-        calledRef.current = true;
-        onTimeUpRef.current();
-        return;
+      if (left <= 0) {
+        if (!isCalled) {
+          isCalled = true;
+          onTimeUpRef.current();
+        }
+        return; // これ以上 requestAnimationFrame を呼ばない
       }
-      rafRef.current = requestAnimationFrame(tick);
+      animationFrameId = requestAnimationFrame(tick);
     };
 
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
+    animationFrameId = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
   }, [resetKey, running, durationMs]);
 
   const pct = (remaining / durationMs) * 100;
