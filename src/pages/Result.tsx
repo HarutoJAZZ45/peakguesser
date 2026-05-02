@@ -15,7 +15,7 @@ interface QuestionResult {
 export default function Result() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isGuest } = useAuth();
+  const { user, isGuest, refreshProfile } = useAuth();
   const [saved, setSaved] = useState(false);
 
   const state = location.state as {
@@ -39,7 +39,7 @@ export default function Result() {
       const correctIds = state.results.filter(r => r.correct).map(r => r.mountain.id);
       
       saveScore(user.uid, currentScore, state.totalTimeMs, correctIds)
-        .then(() => setSaved(true))
+        .then(() => { refreshProfile(); setSaved(true); })
         .catch(err => console.error('Failed to auto-save score:', err));
     }
   }, [state, navigate, user, isGuest, saved]);

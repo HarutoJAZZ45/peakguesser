@@ -12,11 +12,14 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isConfigured } from '../firebase';
+import type { UserProfile } from '../services/gameService';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   isGuest: boolean;
+  userProfile: UserProfile | null;
+  refreshProfile: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -32,13 +35,23 @@ export function useAuth() {
   return ctx;
 }
 
-/** Firestoreにユーザードキュメントを作成（初回のみ） */
-async function ensureUserDoc(user: User) {
-  if (!db) return;
+const DEFAULT_PROFILE: UserProfile = {
+  displayName: 'プレイヤー',
+  photoURL: null,
+  totalGames: 0,
+  totalCorrect: 0,
+  bestScore: 0,
+  bestTime: 0,
+  collectedMountains: [],
+};
+
+/** Firestoreにユーザードキュメントを作成（初回のみ）し、プロフィールを返す */
+async function ensureUserDoc(user: User): Promise<UserProfile> {
+  if (!db) return { ...DEFAULT_PROFILE, displayName: user.displayName || 'プレイヤー' };
   const ref = doc(db, 'users', user.uid);
   const snap = await getDoc(ref);
   if (!snap.exists()) {
-    await setDoc(ref, {
+    const newProfile = {
       displayName: user.displayName || 'プレイヤー',
       photoURL: user.photoURL || null,
       totalGames: 0,
@@ -48,23 +61,39 @@ async function ensureUserDoc(user: User) {
       collectedMountains: [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    });
+    };
+    await setDoc(ref, newProfile);
+    return newProfile as UserProfile;
   }
+  return snap.data() as UserProfile;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  const refreshProfile = async () => {
+    if (!user || !db) return;
+    const ref = doc(db, 'users', user.uid);
+    const snap = await getDoc(ref);
+    if (snap.exists()) setUserProfile(snap.data() as UserProfile);
+  };
 
   useEffect(() => {
     if (!auth) {
       setLoading(false);
       return;
     }
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
+      if (u) {
+        const profile = await ensureUserDoc(u);
+        setUserProfile(profile);
+      } else {
+        setUserProfile(null);
+      }
       setLoading(false);
-      if (u) ensureUserDoc(u);
     });
     return unsub;
   }, []);
@@ -107,6 +136,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         loading,
         isGuest: !isConfigured || !user,
+        userProfile,
+        refreshProfile,
         signInWithEmail,
         signUpWithEmail,
         signInWithGoogle,

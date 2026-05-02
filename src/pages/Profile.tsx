@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserProfile, updateDisplayName, type UserProfile } from '../services/gameService';
+import { updateDisplayName } from '../services/gameService';
 import { mountains } from '../data/mountains';
 import MountainCard from '../components/MountainCard';
 import './Profile.css';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, isGuest, signOut } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const { user, isGuest, signOut, userProfile, refreshProfile } = useAuth();
   const [editing, setEditing] = useState(false);
   const [newName, setNewName] = useState('');
 
@@ -18,18 +17,15 @@ export default function Profile() {
       navigate('/', { replace: true });
       return;
     }
-    if (user) {
-      getUserProfile(user.uid).then(p => {
-        setProfile(p);
-        setNewName(p?.displayName || '');
-      });
+    if (userProfile) {
+      setNewName(userProfile.displayName || '');
     }
-  }, [user, isGuest, navigate]);
+  }, [userProfile, isGuest, navigate]);
 
   const handleSaveName = async () => {
     if (!user || !newName.trim()) return;
     await updateDisplayName(user.uid, newName.trim());
-    setProfile(prev => prev ? { ...prev, displayName: newName.trim() } : prev);
+    await refreshProfile();
     setEditing(false);
   };
 
@@ -38,7 +34,7 @@ export default function Profile() {
     navigate('/');
   };
 
-  if (!profile) {
+  if (!userProfile) {
     return (
       <div className="profile-page">
         <div className="container">
@@ -50,12 +46,12 @@ export default function Profile() {
     );
   }
 
-  const avgScore = profile.totalGames > 0
-    ? (profile.totalCorrect / profile.totalGames).toFixed(1)
+  const avgScore = userProfile.totalGames > 0
+    ? (userProfile.totalCorrect / userProfile.totalGames).toFixed(1)
     : '—';
 
   const collectedMountains = mountains.filter(m =>
-    profile.collectedMountains.includes(m.id)
+    userProfile.collectedMountains.includes(m.id)
   );
 
   return (
@@ -64,9 +60,9 @@ export default function Profile() {
         <div className="profile-header">
           <div className="profile-avatar-large">
             {user?.photoURL ? (
-              <img src={user.photoURL} alt={profile.displayName} />
+              <img src={user.photoURL} alt={userProfile.displayName} />
             ) : (
-              profile.displayName[0]
+              userProfile.displayName[0]
             )}
           </div>
           <div>
@@ -87,7 +83,7 @@ export default function Profile() {
               </div>
             ) : (
               <div>
-                <h1 className="profile-name">{profile.displayName}</h1>
+                <h1 className="profile-name">{userProfile.displayName}</h1>
                 <button
                   className="btn btn-ghost"
                   onClick={() => setEditing(true)}
@@ -103,11 +99,11 @@ export default function Profile() {
 
         <div className="profile-stats">
           <div className="profile-stat">
-            <div className="profile-stat-value">{profile.totalGames}</div>
+            <div className="profile-stat-value">{userProfile.totalGames}</div>
             <div className="profile-stat-label">Games</div>
           </div>
           <div className="profile-stat">
-            <div className="profile-stat-value">{profile.bestScore}/10</div>
+            <div className="profile-stat-value">{userProfile.bestScore}/10</div>
             <div className="profile-stat-label">Best Score</div>
           </div>
           <div className="profile-stat">
