@@ -30,36 +30,55 @@ export interface UserProfile {
   bestScore: number;
   bestTime: number;
   collectedMountains: string[];
+  /** 山ごとの正解回数 { mountainId: correctCount } */
+  mountainCorrectCounts?: Record<string, number>;
+  /** 出題されたことがある山のID一覧 */
+  attemptedMountains?: string[];
 }
 
-/** スコアを保存 */
+/**
+ * スコアを保存（1回のFirestore書き込みのみ）
+ * cachedBestScore/cachedBestTime を使って getDoc を省略し高速化
+ */
 export async function saveScore(
   userId: string,
   score: number,
   timeMs: number,
-  correctMountainIds: string[]
+  correctMountainIds: string[],
+  allQuizMountainIds: string[],
+  cachedBestScore: number,
+  cachedBestTime: number,
 ): Promise<void> {
   if (!db) return;
 
-  // scoresコレクションへの全履歴保存はランキング仕様変更に伴い廃止（コスト削減のため）
-
-  // ユーザー統計を更新
   const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
-  const data = userSnap.data();
 
   const updates: Record<string, unknown> = {
     totalGames: increment(1),
     totalCorrect: increment(score),
-    collectedMountains: arrayUnion(...correctMountainIds),
     updatedAt: serverTimestamp(),
   };
 
-  // ベストスコアの更新
-  if (!data || score > (data.bestScore || 0)) {
+  // 出題された山をすべて attemptedMountains に追加
+  if (allQuizMountainIds.length > 0) {
+    updates.attemptedMountains = arrayUnion(...allQuizMountainIds);
+  }
+
+  // 正解した山を collectedMountains に追加（後方互換）
+  if (correctMountainIds.length > 0) {
+    updates.collectedMountains = arrayUnion(...correctMountainIds);
+  }
+
+  // 正解した山ごとの正解回数をインクリメント（ドット記法でネストフィールドを更新）
+  for (const id of correctMountainIds) {
+    updates[`mountainCorrectCounts.${id}`] = increment(1);
+  }
+
+  // ベストスコアの更新（キャッシュされた値で比較 → getDoc 不要）
+  if (score > cachedBestScore) {
     updates.bestScore = score;
   }
-  if (!data || (score >= (data.bestScore || 0) && (data.bestTime === 0 || timeMs < data.bestTime))) {
+  if (score >= cachedBestScore && (cachedBestTime === 0 || timeMs < cachedBestTime)) {
     updates.bestTime = timeMs;
   }
 

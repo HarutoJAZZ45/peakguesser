@@ -103,21 +103,89 @@
   border-bottom: 2px solid var(--c-border);
 }
 
-.profile-collection-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: var(--sp-md);
+/* ===== Donut Chart ===== */
+
+.donut-chart-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2xl);
+  padding: var(--sp-xl) 0;
   animation: slideUp 600ms ease forwards;
   animation-delay: 300ms;
   opacity: 0;
 }
 
-.profile-collection-empty {
-  color: var(--c-text-muted);
-  font-size: var(--fs-sm);
-  padding: var(--sp-xl);
-  text-align: center;
+.donut-chart-svg {
+  width: 200px;
+  height: 200px;
+  transform: rotate(-90deg);
+  flex-shrink: 0;
 }
+
+.donut-segment {
+  animation: donutGrow 800ms ease forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes donutGrow {
+  from {
+    stroke-dasharray: 0 999;
+  }
+}
+
+.donut-center-value {
+  font-family: var(--ff-heading);
+  font-size: 32px;
+  font-weight: var(--fw-bold);
+  fill: var(--c-text-primary);
+  /* rotate back to upright since SVG parent is rotated -90deg */
+  transform: rotate(90deg);
+  transform-origin: center;
+}
+
+.donut-center-label {
+  font-family: var(--ff-heading);
+  font-size: 12px;
+  fill: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transform: rotate(90deg);
+  transform-origin: center;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  font-size: var(--fs-sm);
+}
+
+.donut-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.donut-legend-label {
+  color: var(--c-text-secondary);
+  min-width: 64px;
+}
+
+.donut-legend-count {
+  font-family: var(--ff-heading);
+  font-weight: var(--fw-bold);
+  color: var(--c-text-primary);
+}
+
+/* ===== Logout ===== */
 
 .profile-logout-section {
   margin-top: var(--sp-3xl);
@@ -130,8 +198,16 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .profile-collection-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .donut-chart-wrapper {
+    flex-direction: column;
+    gap: var(--sp-xl);
+  }
+
+  .donut-legend {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--sp-md) var(--sp-lg);
   }
 
   .profile-header {

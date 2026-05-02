@@ -43,6 +43,8 @@ const DEFAULT_PROFILE: UserProfile = {
   bestScore: 0,
   bestTime: 0,
   collectedMountains: [],
+  mountainCorrectCounts: {},
+  attemptedMountains: [],
 };
 
 /** Firestoreにユーザードキュメントを作成（初回のみ）し、プロフィールを返す */
@@ -59,6 +61,8 @@ async function ensureUserDoc(user: User): Promise<UserProfile> {
       bestScore: 0,
       bestTime: 0,
       collectedMountains: [],
+      mountainCorrectCounts: {},
+      attemptedMountains: [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
