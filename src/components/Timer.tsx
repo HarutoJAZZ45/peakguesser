@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './Timer.css';
 
 interface TimerProps {
@@ -14,30 +14,36 @@ export default function Timer({ durationMs, running, onTimeUp, resetKey }: Timer
   const startTimeRef = useRef(0);
   const rafRef = useRef(0);
   const calledRef = useRef(false);
+  const onTimeUpRef = useRef(onTimeUp);
 
-  const tick = useCallback(() => {
-    const elapsed = Date.now() - startTimeRef.current;
-    const left = Math.max(0, durationMs - elapsed);
-    setRemaining(left);
-
-    if (left <= 0 && !calledRef.current) {
-      calledRef.current = true;
-      onTimeUp();
-      return;
-    }
-    rafRef.current = requestAnimationFrame(tick);
-  }, [durationMs, onTimeUp]);
+  // onTimeUp の最新参照を常に保持（依存配列から外すため）
+  useEffect(() => {
+    onTimeUpRef.current = onTimeUp;
+  }, [onTimeUp]);
 
   useEffect(() => {
     setRemaining(durationMs);
     calledRef.current = false;
     startTimeRef.current = Date.now();
 
-    if (running) {
+    if (!running) return;
+
+    const tick = () => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const left = Math.max(0, durationMs - elapsed);
+      setRemaining(left);
+
+      if (left <= 0 && !calledRef.current) {
+        calledRef.current = true;
+        onTimeUpRef.current();
+        return;
+      }
       rafRef.current = requestAnimationFrame(tick);
-    }
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [resetKey, running, durationMs, tick]);
+  }, [resetKey, running, durationMs]);
 
   const pct = (remaining / durationMs) * 100;
   const seconds = Math.ceil(remaining / 1000);

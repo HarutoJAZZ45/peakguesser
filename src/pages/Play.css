@@ -1,7 +1,7 @@
 .play-page {
   flex: 1;
-  padding-top: calc(var(--header-height) + var(--sp-md));
-  padding-bottom: var(--sp-xl);
+  padding-top: calc(var(--header-height) + var(--sp-sm));
+  padding-bottom: var(--sp-md);
   display: flex;
   flex-direction: column;
 }
@@ -46,17 +46,17 @@
 .play-image-wrapper {
   position: relative;
   width: 100%;
-  max-height: 420px;
+  max-height: 320px;
   overflow: hidden;
   background: var(--c-bg-input);
   border: 1px solid var(--c-border);
-  margin-bottom: var(--sp-md);
+  margin-bottom: var(--sp-sm);
 }
 
 .play-image {
   width: 100%;
   height: 100%;
-  max-height: 420px;
+  max-height: 320px;
   object-fit: cover;
   display: block;
   animation: fadeIn 300ms ease forwards;
@@ -83,8 +83,8 @@
 .play-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--sp-sm);
-  margin-top: var(--sp-md);
+  gap: var(--sp-xs);
+  margin-top: var(--sp-sm);
 }
 
 .play-option-btn {
@@ -92,13 +92,13 @@
   border: 2px solid var(--c-border-strong);
   color: var(--c-text-primary);
   font-family: var(--ff-body);
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
-  padding: var(--sp-md) var(--sp-lg);
+  padding: var(--sp-sm) var(--sp-md);
   cursor: pointer;
   transition: all var(--tr-fast);
   text-align: left;
-  min-height: 56px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: var(--sp-sm);
@@ -138,17 +138,17 @@
 /* Feedback overlay */
 .play-feedback {
   text-align: center;
-  padding: var(--sp-lg);
+  padding: var(--sp-sm) var(--sp-lg);
   animation: fadeIn 200ms ease forwards;
 }
 
 .play-feedback-text {
   font-family: var(--ff-heading);
-  font-size: var(--fs-xl);
+  font-size: var(--fs-lg);
   font-weight: var(--fw-bold);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: var(--sp-sm);
+  margin-bottom: var(--sp-xs);
 }
 
 .play-feedback-text.correct {
@@ -160,9 +160,9 @@
 }
 
 .play-feedback-detail {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
   color: var(--c-text-secondary);
-  margin-bottom: var(--sp-md);
+  margin-bottom: var(--sp-sm);
 }
 
 @media (max-width: 640px) {
@@ -171,10 +171,10 @@
   }
 
   .play-image-wrapper {
-    max-height: 280px;
+    max-height: 220px;
   }
 
   .play-image {
-    max-height: 280px;
+    max-height: 220px;
   }
 }

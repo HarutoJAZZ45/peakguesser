@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import './Header.css';
 
 export default function Header() {
-  const { user, isGuest } = useAuth();
+  const { isGuest } = useAuth();
   const location = useLocation();
 
   const isActive = (path: string) =>
@@ -29,15 +29,7 @@ export default function Header() {
         </nav>
 
         <div className="header-user">
-          {!isGuest && user ? (
-            <Link to="/profile" className="header-avatar" id="header-avatar">
-              {user.photoURL ? (
-                <img src={user.photoURL} alt={user.displayName || ''} />
-              ) : (
-                (user.displayName || 'U')[0]
-              )}
-            </Link>
-          ) : (
+          {isGuest && (
             <Link to="/" className="btn-ghost" style={{ fontSize: 'var(--fs-sm)' }} id="header-login">
               Login
             </Link>
