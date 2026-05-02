@@ -92,7 +92,7 @@ export default function Play() {
   return (
     <div className="play-page">
       <div className="container">
-        <div className="play-header-sticky">
+        <div className="play-header">
           {/* Progress dots */}
           <div className="play-progress">
             {questions.map((_, i) => {
